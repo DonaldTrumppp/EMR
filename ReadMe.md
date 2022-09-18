@@ -1,3 +1,6 @@
+
+npm run build
+
 1.	Get the data by scraping the index site on the EMR / input from pdf using record
 2.	Convert the data from a Json file to a Px class in JS
 3.	Expected features
@@ -5,3 +8,8 @@
         i.	Option to Direct comparison among different records (e.g. Rx changes)
 4.	Future improvement
     a.	Provide tentative Dx and Mx
+
+Stream line of web dev
+1. Get the data structure ongoing and present the data on the page first
+2. Implement features such as button and date selection
+3. Format the page with HTML structure and CSS

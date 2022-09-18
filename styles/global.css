@@ -3,5 +3,48 @@
   }
 
 p {
-    font-size: 24px;
+    font-size: 28px;
+    margin: 3px;
+}
+.content-container{
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+}
+
+.RegularTest{
+  border-style: solid;
+  border-width: 3px;
+
+}
+
+.simpleTestDetailCommon{
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.TextDetailContainer{
+  border-style: solid;
+  border-width: 3px;
+  display: flex;
+  width: 100%;
+  padding: 1px;
+  margin: auto;
+  justify-content: flex-start;
+}
+
+.simpleTestDiv{
+  border-style: solid;
+  border-width: 1px;
+  border-color: red;
+  display: flex;
+  padding: 1px;
+  margin: auto;
+  justify-content: flex-start;
+}
+
+.testDetail{
+  display: inline-block;
+  flex-basis:
+  content;
+  margin: 10px;
 }

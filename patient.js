@@ -1,7 +1,0 @@
-class Patient {
-    constructor(config){
-        
-    }
-
-
-}
