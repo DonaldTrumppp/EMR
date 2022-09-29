@@ -8605,6 +8605,7 @@ class ContentManager {
 
   createElement() {
     const content = this.pxHxList;
+    console.log(content);
     Object.keys(content).forEach(testType => {
       let testDetail = content[testType];
       let element;
@@ -8645,6 +8646,80 @@ class ContentManager {
 
 /***/ }),
 
+/***/ "./src/firebase.js":
+/*!*************************!*\
+  !*** ./src/firebase.js ***!
+  \*************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "FirebaseManager": () => (/* binding */ FirebaseManager)
+/* harmony export */ });
+/* harmony import */ var firebase_app__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! firebase/app */ "./node_modules/firebase/app/dist/index.esm.js");
+/* harmony import */ var firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! firebase/firestore/lite */ "./node_modules/firebase/firestore/lite/dist/index.esm.js");
+/* harmony import */ var _patientData_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./patientData.js */ "./src/patientData.js");
+// Import the functions you need from the SDKs you need
+
+ // TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+
+
+class FirebaseManager {
+  constructor() {
+    // Initialize Firebase
+    const app = (0,firebase_app__WEBPACK_IMPORTED_MODULE_0__.initializeApp)(_patientData_js__WEBPACK_IMPORTED_MODULE_2__.firebaseConfig);
+    this.db = (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.getFirestore)(app);
+  }
+
+  async loadPatientData({
+    id
+  }) {
+    const pxDoc = (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.doc)(this.db, "pxList", id);
+    const snapshot = await (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.getDoc)(pxDoc);
+    return {
+      id: snapshot.id,
+      ...snapshot.data()
+    };
+  }
+
+  async setPatientData({
+    id,
+    patientData
+  }) {
+    const docRef = (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.collection)(this.db, "pxList");
+    console.log(docRef);
+    await (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.setDoc)((0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.doc)(docRef, id), patientData);
+  }
+
+  async loadCity() {
+    const docRef = (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.doc)(this.db, "cities", "SF");
+    const snapshot = await (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.getDoc)(docRef);
+    return {
+      id: snapshot.id,
+      ...snapshot.data()
+    };
+  }
+
+  async setDocCity() {
+    const citiesRef = (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.collection)(db, "cities");
+    await (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.setDoc)((0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_1__.doc)(citiesRef, "SF"), {
+      name: "San Francisco",
+      state: "CA",
+      country: "USA",
+      capital: false,
+      population: 860000,
+      regions: ["west_coast", "norcal"]
+    });
+  }
+
+}
+
+
+
+/***/ }),
+
 /***/ "./src/patient.js":
 /*!************************!*\
   !*** ./src/patient.js ***!
@@ -8661,9 +8736,17 @@ __webpack_require__.r(__webpack_exports__);
 class Patient {
   constructor(config) {
     this.id = config.id;
-    this.age = _utils_js__WEBPACK_IMPORTED_MODULE_0__.utils.getAge(config.age);
-    this.HxList = config.HxList;
-    console.log(this);
+    this.age = _utils_js__WEBPACK_IMPORTED_MODULE_0__.utils.getAge(config.birthday.toDate());
+    this.HxSource = config.HxList;
+    this.HxList = [];
+  }
+
+  init(hxTypeList) {
+    const tempObj = {};
+    Object.values(hxTypeList).forEach(HxType => {
+      tempObj[HxType] = this.HxSource[0][HxType];
+    });
+    this.HxList.push(tempObj);
   }
 
 }
@@ -8720,7 +8803,8 @@ const hxCommonRecord = {
   safe: "Safe",
   full: "Full",
   PERRLA: "PERRLA"
-};
+}; // Date (2000, 9, 14) = 2000/10/14 as month start with index 0 
+
 const patientData = {
   P123456: {
     id: "123456",
@@ -8789,8 +8873,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "SimpleTestDetail": () => (/* binding */ SimpleTestDetail)
 /* harmony export */ });
-/* harmony import */ var _patientData_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./patientData.js */ "./src/patientData.js");
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils.js */ "./src/utils.js");
+/* harmony import */ var firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! firebase/firestore/lite */ "./node_modules/firebase/firestore/lite/dist/index.esm.js");
+/* harmony import */ var _patientData_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./patientData.js */ "./src/patientData.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils.js */ "./src/utils.js");
+
 
 
 
@@ -8802,7 +8888,14 @@ class SimpleTestDetail {
     this.container = config.container;
     this.element = null;
     this.testType = config.testType;
-    this.testDetail = config.testDetail;
+
+    if (typeof config.testDetail == "object") {
+      this.testDetail = config.testDetail.toDate();
+    } else {
+      this.testDetail = config.testDetail;
+    }
+
+    ;
   }
 
   createElement() {
@@ -8814,9 +8907,9 @@ class SimpleTestDetail {
             <p class = "TextMessage_p">${this.testType}:   </p>`;
     element.appendChild(testTypeDiv);
     const testDetailDiv = document.createElement("div");
-    const isCommonResponse = Object.filter(_patientData_js__WEBPACK_IMPORTED_MODULE_0__.hxCommonRecord, obj => obj === this.testDetail);
+    const isCommonResponse = Object.filter(_patientData_js__WEBPACK_IMPORTED_MODULE_1__.hxCommonRecord, obj => obj === this.testDetail);
 
-    if (!_utils_js__WEBPACK_IMPORTED_MODULE_1__.utils.checkEmptyObject(isCommonResponse)) {
+    if (!_utils_js__WEBPACK_IMPORTED_MODULE_2__.utils.checkEmptyObject(isCommonResponse)) {
       testDetailDiv.classList.add("simpleTestDetailCommon");
     } else {
       testDetailDiv.classList.add("simpleTestDetail");
@@ -8849,12 +8942,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "utils": () => (/* binding */ utils)
 /* harmony export */ });
-// Example use:
-// var scores = {
-//     John: 2, Sarah: 3, Janet: 1
-// };
-// var filtered = Object.filter(scores, score => score > 1);
-// return {} if no match found
 const utils = {
   getAge(dateString) {
     var today = new Date();
@@ -11012,42 +11099,51 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _patientData_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./patientData.js */ "./src/patientData.js");
 /* harmony import */ var _patient_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./patient.js */ "./src/patient.js");
 /* harmony import */ var _contentManager_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./contentManager.js */ "./src/contentManager.js");
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils.js */ "./src/utils.js");
-/* harmony import */ var firebase_app__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! firebase/app */ "./node_modules/firebase/app/dist/index.esm.js");
-/* harmony import */ var firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! firebase/firestore/lite */ "./node_modules/firebase/firestore/lite/dist/index.esm.js");
+/* harmony import */ var _firebase_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./firebase.js */ "./src/firebase.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils.js */ "./src/utils.js");
 
 
 
- // Import the functions you need from the SDKs you need
 
 
- // TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-// Initialize Firebase
+const firebaseManager = new _firebase_js__WEBPACK_IMPORTED_MODULE_3__.FirebaseManager();
 
-const app = (0,firebase_app__WEBPACK_IMPORTED_MODULE_4__.initializeApp)(_patientData_js__WEBPACK_IMPORTED_MODULE_0__.firebaseConfig);
-const db = (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_5__.getFirestore)(app);
-
-async function loadCity(name) {
-  const cityDoc = (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_5__.doc)(db, `cities/${name}`);
-  const snapshot = await (0,firebase_firestore_lite__WEBPACK_IMPORTED_MODULE_5__.getDoc)(cityDoc);
-  return {
-    id: snapshot.id,
-    ...snapshot.data()
-  };
+async function consoleLogPx(id) {
+  const result = await firebaseManager.setPatientData({
+    patientData: _patientData_js__WEBPACK_IMPORTED_MODULE_0__.patientData[id],
+    id
+  });
 }
 
-console.log(db);
+async function loadPxData(id) {
+  const result = await firebaseManager.loadPatientData({
+    id
+  }); // const time = result.birthday.toDate()
 
-Object.filter = (obj, predicate) => Object.keys(obj).filter(key => predicate(obj[key])).reduce((res, key) => (res[key] = obj[key], res), {});
+  console.log(result);
+  const currentPx = new _patient_js__WEBPACK_IMPORTED_MODULE_1__.Patient(result);
+  currentPx.init(_patientData_js__WEBPACK_IMPORTED_MODULE_0__.hxTypeList);
+  console.log(currentPx);
+  const contentManager = new _contentManager_js__WEBPACK_IMPORTED_MODULE_2__.ContentManager({
+    container: document.querySelector(".content-container"),
+    pxHxList: currentPx.HxList[0]
+  });
+  contentManager.init();
+}
 
-const currentPx = new _patient_js__WEBPACK_IMPORTED_MODULE_1__.Patient(_patientData_js__WEBPACK_IMPORTED_MODULE_0__.patientData.P123456);
-console.log(currentPx);
-const contentManager = new _contentManager_js__WEBPACK_IMPORTED_MODULE_2__.ContentManager({
-  container: document.querySelector(".content-container"),
-  pxHxList: currentPx.HxList[0]
-});
-contentManager.init();
+const loadedData = loadPxData("P123456"); // Example use:
+// var scores = {
+//     John: 2, Sarah: 3, Janet: 1
+// };
+// var filtered = Object.filter(scores, score => score > 1);
+// return {} if no match found
+
+Object.filter = (obj, predicate) => Object.keys(obj).filter(key => predicate(obj[key])).reduce((res, key) => (res[key] = obj[key], res), {}); // const currentPx = new Patient(patientData.P123456)
+// const contentManager = new ContentManager({
+//     container : document.querySelector(".content-container"),
+//     pxHxList: currentPx.HxList[0],
+// })
+// contentManager.init()
 })();
 
 /******/ })()

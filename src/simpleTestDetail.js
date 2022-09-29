@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore/lite"
 import {hxCommonRecord} from "./patientData.js"
 import {utils} from "./utils.js"
 
@@ -9,7 +10,11 @@ class SimpleTestDetail{
         this.container = config.container
         this.element = null
         this.testType = config.testType
-        this.testDetail = config.testDetail
+
+        if (typeof config.testDetail == "object"){
+            this.testDetail = config.testDetail.toDate()
+        }
+        else {this.testDetail = config.testDetail};
     }
 
     createElement(){

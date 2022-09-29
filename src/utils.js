@@ -1,11 +1,3 @@
-// Example use:
-// var scores = {
-//     John: 2, Sarah: 3, Janet: 1
-// };
-// var filtered = Object.filter(scores, score => score > 1);
-// return {} if no match found
-
-
 const utils = {
     getAge(dateString){
         var today = new Date();
@@ -17,11 +9,12 @@ const utils = {
         }
         return age;
     },
+
     checkEmptyObject(obj){
         return(obj // 👈 null and undefined check
             && Object.keys(obj).length === 0 // could be new Date()
             && Object.getPrototypeOf(obj) === Object.prototype)
-    }
+    },
 }
 
 export {utils}
