@@ -10,6 +10,10 @@ var frameCount = 0;
 var fps = 5;
 var fpsInterval, startTime, now, then, elapsed;
 
+const produectArr = []
+let developingProduct = null;
+const employeeArr = []
+
 const keys = {
     w: {
         pressed: false
@@ -56,28 +60,18 @@ function update() {
             return;
         }
 
-        if (keys.w.pressed && lastKey === 'w') {
-            moveables.forEach((movable) => {
-                movable.position.y += playerMS
-            })
-        }
-        else if (keys.a.pressed && lastKey === 'a') {
-            moveables.forEach((movable) => {
-                movable.position.x += playerMS
-            })
-        }
-        else if (keys.s.pressed && lastKey === 's') {
-            moveables.forEach((movable) => {
-                movable.position.y -= playerMS
-            })
-        }
-        else if (keys.d.pressed && lastKey === 'd') {
-            moveables.forEach((movable) => {
-                movable.position.x -= playerMS
-            })
-        }
+        produectArr.forEach((product) =>{
+            goldCount += product.sell()
+        })
+        
 
+        employeeArr.forEach((employee) =>{
+            developingProduct.stat += employee.yieldPoint()
+        })
 
+        goldDiv.textContent = developingProduct.stat
+
+        
         // playerSprite.weaponArr.forEach((weapon) => {
         //     weapon.attack(farmGridArr)
         // })
@@ -110,18 +104,9 @@ function update() {
 }
 
 function initGame() {
-
     startAnimating(fps)
-
-    clearSave()
-    if (playerSprite.defaultWeapon) {
-        playerSprite.defaultWeapon.forEach((weapon) =>{
-            addWeapon(weapon.name)
-        })
-    }
-
-    loadSave()    
-   
+    developingProduct = developProduct()
+    newEmployee(employeeArr)
 }
 
 function pauseTheGame(){
@@ -130,6 +115,37 @@ function pauseTheGame(){
 
 function unPauseTheGame(){
     isPaused = false
+}
+
+function developProduct(devProd){
+    return new DevelopingProduct({
+        name: "product1",
+        stat: 0,
+    })
+}
+
+function newProduct(arr){
+    const newProduct = new Product({
+        name: "product1",
+        stat: 100,
+    })
+    newProduct.init()
+    arr.push(newProduct)
+}
+
+function newEmployee(arr){
+    const newEmployee = new Employee({
+        name: "employee1",
+        dice: {
+            1: 1,
+            2: 2,
+            3: 3,
+            4: 4,
+            5: 5,
+            6: 6,
+        }
+    })
+    arr.push(newEmployee)
 }
 
 function writeSave() {
@@ -194,63 +210,22 @@ function clearSave() {
 }
 
 // start playing BGM once the user clicked
-let clicked = false
-addEventListener('click', () => {
-    if (!clicked) {
-        bgm = audio.letterIris
+// let clicked = false
+// addEventListener('click', () => {
+//     if (!clicked) {
+//         bgm = audio.letterIris
 
-        if (bgmVolume == undefined) {
-            bgmVolume = 5
-        }
-        bgm.volume(bgmVolume / 100)
+//         if (bgmVolume == undefined) {
+//             bgmVolume = 5
+//         }
+//         bgm.volume(bgmVolume / 100)
 
-        // TODO: fix the audio stopping issue when switching between pages
-        // bgm.play()
+//         // TODO: fix the audio stopping issue when switching between pages
+//         // bgm.play()
 
-        clicked = true
-    }
-})
-
-let lastKey = ''
-window.addEventListener('keydown', (e) => {
-    switch (e.key) {
-        case 'w':
-            keys.w.pressed = true
-            lastKey = 'w'
-            break
-        case 'a':
-            keys.a.pressed = true
-            lastKey = 'a'
-            break
-
-        case 's':
-            keys.s.pressed = true
-            lastKey = 's'
-            break
-
-        case 'd':
-            keys.d.pressed = true
-            lastKey = 'd'
-            break
-    }
-})
-
-window.addEventListener('keyup', (e) => {
-    switch (e.key) {
-        case 'w':
-            keys.w.pressed = false
-            break
-        case 'a':
-            keys.a.pressed = false
-            break
-        case 's':
-            keys.s.pressed = false
-            break
-        case 'd':
-            keys.d.pressed = false
-            break
-    }
-})
+//         clicked = true
+//     }
+// })
 
 
 initGame()
