@@ -32,7 +32,8 @@ border: none;
 font-size: 17px;
 }
 
-.topnav .search-container button {
+.topnav .stats {
+    display: block;
     float: right;
     padding: 6px 10px;
     margin-top: 8px;
