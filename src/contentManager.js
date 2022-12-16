@@ -9,7 +9,6 @@ class ContentManager{
 
     createElement(){
         const content = this.pxHxList
-
         Object.keys(content).forEach(testType =>{
             let testDetail = content[testType];
             let element;

@@ -2,9 +2,30 @@ import {examTypeList, hxTypeList,hxCommonRecord,patientData, firebaseConfig} fro
 import {Patient} from "./patient.js"
 import {ContentManager} from "./contentManager.js"
 import { FirebaseManager } from "./firebase.js"
+import { KeyPressListener } from "./keyPressListener.js"
 import {utils} from "./utils.js"
 
 const firebaseManager = new FirebaseManager();
+
+const searchInput = document.querySelector("#searchInput")
+const searchButton = document.querySelector("#searchButton")
+searchButton.addEventListener("click", getIdThenLoad);
+new KeyPressListener("Enter", getIdThenLoad)
+
+function getIdThenLoad(){
+    console.log("getting Id then loading")
+    const id = getId()
+    if (!id){
+        console.log("no id!")
+        return false
+    }
+    loadPxData(id)
+}
+
+function getId(){
+    return searchInput.value
+}
+
 async function consoleLogPx(id){
     const result = await firebaseManager.setPatientData({
         patientData: patientData[id],
@@ -15,19 +36,22 @@ async function loadPxData(id){
     const result = await firebaseManager.loadPatientData({
         id,
     })
-    // const time = result.birthday.toDate()
     console.log(result)
+    if (!result.birthday){
+        console.log("Pateint does not exist!")
+        return false
+    }
     const currentPx = new Patient(result)
+    
     currentPx.init(hxTypeList)
-    console.log(currentPx)
     const contentManager = new ContentManager({
         container : document.querySelector(".content-container"),
         pxHxList: currentPx.HxList[0],
     })
     contentManager.init()
+    searchInput.value = null
 }
 
-const loadedData = loadPxData("P123456")
 
 // Example use:
 // var scores = {

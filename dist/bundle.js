@@ -8605,7 +8605,6 @@ class ContentManager {
 
   createElement() {
     const content = this.pxHxList;
-    console.log(content);
     Object.keys(content).forEach(testType => {
       let testDetail = content[testType];
       let element;
@@ -8712,6 +8711,50 @@ class FirebaseManager {
       population: 860000,
       regions: ["west_coast", "norcal"]
     });
+  }
+
+}
+
+
+
+/***/ }),
+
+/***/ "./src/keyPressListener.js":
+/*!*********************************!*\
+  !*** ./src/keyPressListener.js ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "KeyPressListener": () => (/* binding */ KeyPressListener)
+/* harmony export */ });
+class KeyPressListener {
+  constructor(keyCode, callback) {
+    let keySafe = true;
+
+    this.keydownFunction = function (event) {
+      if (event.code === keyCode) {
+        if (keySafe) {
+          keySafe = false;
+          callback();
+        }
+      }
+    };
+
+    this.keyupFunction = function (event) {
+      if (event.code === keyCode) {
+        keySafe = true;
+      }
+    };
+
+    document.addEventListener("keydown", this.keydownFunction);
+    document.addEventListener("keyup", this.keyupFunction);
+  }
+
+  unbind() {
+    document.removeEventListener("keydown", this.keydownFunction);
+    document.removeEventListener("keyup", this.keyupFunction);
   }
 
 }
@@ -11100,13 +11143,35 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _patient_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./patient.js */ "./src/patient.js");
 /* harmony import */ var _contentManager_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./contentManager.js */ "./src/contentManager.js");
 /* harmony import */ var _firebase_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./firebase.js */ "./src/firebase.js");
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils.js */ "./src/utils.js");
+/* harmony import */ var _keyPressListener_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./keyPressListener.js */ "./src/keyPressListener.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils.js */ "./src/utils.js");
+
 
 
 
 
 
 const firebaseManager = new _firebase_js__WEBPACK_IMPORTED_MODULE_3__.FirebaseManager();
+const searchInput = document.querySelector("#searchInput");
+const searchButton = document.querySelector("#searchButton");
+searchButton.addEventListener("click", getIdThenLoad);
+new _keyPressListener_js__WEBPACK_IMPORTED_MODULE_4__.KeyPressListener("Enter", getIdThenLoad);
+
+function getIdThenLoad() {
+  console.log("getting Id then loading");
+  const id = getId();
+
+  if (!id) {
+    console.log("no id!");
+    return false;
+  }
+
+  loadPxData(id);
+}
+
+function getId() {
+  return searchInput.value;
+}
 
 async function consoleLogPx(id) {
   const result = await firebaseManager.setPatientData({
@@ -11118,25 +11183,29 @@ async function consoleLogPx(id) {
 async function loadPxData(id) {
   const result = await firebaseManager.loadPatientData({
     id
-  }); // const time = result.birthday.toDate()
-
+  });
   console.log(result);
+
+  if (!result.birthday) {
+    console.log("Pateint does not exist!");
+    return false;
+  }
+
   const currentPx = new _patient_js__WEBPACK_IMPORTED_MODULE_1__.Patient(result);
   currentPx.init(_patientData_js__WEBPACK_IMPORTED_MODULE_0__.hxTypeList);
-  console.log(currentPx);
   const contentManager = new _contentManager_js__WEBPACK_IMPORTED_MODULE_2__.ContentManager({
     container: document.querySelector(".content-container"),
     pxHxList: currentPx.HxList[0]
   });
   contentManager.init();
-}
-
-const loadedData = loadPxData("P123456"); // Example use:
+  searchInput.value = null;
+} // Example use:
 // var scores = {
 //     John: 2, Sarah: 3, Janet: 1
 // };
 // var filtered = Object.filter(scores, score => score > 1);
 // return {} if no match found
+
 
 Object.filter = (obj, predicate) => Object.keys(obj).filter(key => predicate(obj[key])).reduce((res, key) => (res[key] = obj[key], res), {}); // const currentPx = new Patient(patientData.P123456)
 // const contentManager = new ContentManager({
