@@ -1,3 +1,13 @@
+:root {
+  --border-color: #291D4D;
+  --dialog-background: #FFF3B4;
+
+  --menu-background: #FFE8D2;
+  --menu-border-color: #A48465;
+  --menu-font-color: #3A160D;
+  --menu-selected-background: #7fc2ff;
+}
+
 * {
     box-sizing:border-box;
   }
@@ -6,7 +16,13 @@ p {
     font-size: 28px;
     margin: 3px;
 }
-.content-container{
+.game-container{
+  margin-left: 200px;
+  /* Same as the width of the sidenav */
+  font-size: 20px;
+  /* Increased text to enable scrolling */
+  padding: 0px 10px;
+  
   display:flex;
   flex-wrap: wrap;
   justify-content: space-evenly;

@@ -10,28 +10,32 @@ var frameCount = 0;
 var fps = 5;
 var fpsInterval, startTime, now, then, elapsed;
 
-const produectArr = []
+const gameContaier = document.querySelector(".game-container")
+const productArr = []
 let developingProduct = null;
 const employeeArr = []
+let message = null
+let employeeDisplay = null
+let developingProductDisplay = null
 
-const keys = {
-    w: {
-        pressed: false
-    },
-    a: {
-        pressed: false
-    },
-    s: {
-        pressed: false
-    },
-    d: {
-        pressed: false
-    }
-}
+// const keys = {
+//     w: {
+//         pressed: false
+//     },
+//     a: {
+//         pressed: false
+//     },
+//     s: {
+//         pressed: false
+//     },
+//     d: {
+//         pressed: false
+//     }
+// }
 
 const goldDiv = document.querySelector("#gold")
-let goldCount = 234
-goldDiv.textContent = goldCount
+const developingProductDiv = document.querySelector("#developingProduct")
+let goldCount = 250
 
 // initialize the timer variables and start the animation
 function startAnimating(fps) {
@@ -60,18 +64,56 @@ function update() {
             return;
         }
 
-        produectArr.forEach((product) =>{
-            goldCount += product.sell()
-        })
-        
 
-        employeeArr.forEach((employee) =>{
-            developingProduct.stat += employee.yieldPoint()
-        })
+        if (productArr) {
 
-        goldDiv.textContent = developingProduct.stat
+            messageText = ""
+            productArr.forEach((product) => {
+                goldCount += product.sell()
+                messageText += `${product.name} Has Earned: ${product.sale} <br>`
 
-        
+            })
+            if (message) {
+                message.updateText(messageText)
+            }
+            else {
+                message = new TextMessage({
+                    text: messageText
+                })
+                message.init(gameContaier)
+            }
+
+        }
+
+        if (employeeArr){
+            employeeDisplay.employeeArr = employeeArr
+            employeeDisplay.updateText()
+        }
+
+
+
+        if (developingProduct) {
+
+            employeeArr.forEach((employee) => {
+                chosenSideArr = Object.entries(employee.yieldPoint())[0]
+
+                statGain = { key: chosenSideArr[0], value: chosenSideArr[1] }
+
+                developingProduct.develop(statGain)
+            })
+            developingProductDisplay.config = developingProduct.returnConfig()
+            developingProductDisplay.updateText()
+            if (developingProduct.isCompleted) {
+                newProduct(productArr, developingProduct.returnConfig())
+                developingProduct = null
+            }
+        }
+
+
+        goldDiv.textContent = `Gold: ${goldCount}`
+
+
+
         // playerSprite.weaponArr.forEach((weapon) => {
         //     weapon.attack(farmGridArr)
         // })
@@ -105,48 +147,121 @@ function update() {
 
 function initGame() {
     startAnimating(fps)
-    developingProduct = developProduct()
     newEmployee(employeeArr)
+    newEmployee(employeeArr)
+    newProduct(productArr)
+    developProduct()
+
+    employeeDisplay = new EmployeeDisplay({
+        employeeArr: employeeArr
+    })
+    employeeDisplay.init(gameContaier)
+
+    developingProductDisplay = new DevelopingProductDisplay({
+        config: developingProduct
+    })
+    developingProductDisplay.init(gameContaier)
+
+    buttonsBindings()
 }
 
-function pauseTheGame(){
+function buttonsBindings() {
+    //* Loop through all dropdown buttons to toggle between hiding and showing its dropdown content - This allows the user to have multiple dropdowns without any conflict */
+    let dropdown = document.getElementsByClassName("dropdown-btn");
+    for (let i = 0; i < dropdown.length; i++) {
+        dropdown[i].addEventListener("click", function () {
+            this.classList.toggle("active");
+            let dropdownContent = this.nextElementSibling;
+            if (dropdownContent.style.display === "block") {
+                dropdownContent.style.display = "none";
+            } else {
+                dropdownContent.style.display = "block";
+            }
+        });
+    }
+
+    let hireButton =  document.querySelector("#HireButton")
+    hireButton.addEventListener("click", 
+        newEmployee
+    , false)
+
+    let newProductButton = document.querySelector("#newProductButton")
+    newProductButton.addEventListener("click", developProduct, false)
+}
+
+function pauseTheGame() {
     isPaused = true
 }
 
-function unPauseTheGame(){
+function unPauseTheGame() {
     isPaused = false
 }
 
-function developProduct(devProd){
-    return new DevelopingProduct({
-        name: "product1",
-        stat: 0,
-    })
-}
-
-function newProduct(arr){
-    const newProduct = new Product({
-        name: "product1",
-        stat: 100,
-    })
-    newProduct.init()
-    arr.push(newProduct)
-}
-
-function newEmployee(arr){
-    const newEmployee = new Employee({
-        name: "employee1",
-        dice: {
-            1: 1,
-            2: 2,
-            3: 3,
-            4: 4,
-            5: 5,
-            6: 6,
+function developProduct(devProd) {
+    if (developingProduct){
+        if(!developingProduct.isCompleted){
+            console.log("Developing another product")
+            return
+        }
+    }
+    developingProduct = new DevelopingProduct({
+        name: `Product ${productArr.length + 1}`,
+        stats:
+        {
+            F: 0,
+            C: 0,
+            G: 0,
+            S: 0
         }
     })
-    arr.push(newEmployee)
+
 }
+
+function newProduct(arr, config = null) {
+    let newProduct
+    if (config) {
+        newProduct = new Product(config)
+    }
+    else {
+        newProduct = new Product({
+            name: `Product ${productArr.length + 1}`,
+            stats: {
+                F: 25,
+                C: 25,
+                G: 25,
+                S: 25,
+            }
+        })
+    }
+    newProduct.init()
+    if(Array.isArray(arr)){
+        arr.push(newProduct)
+    }
+    else{
+        productArr.push(newProduct)
+    }
+    
+}
+
+function newEmployee(arr = null) {
+
+    const newEmployee = new Employee({
+        name: `Employee ${employeeArr.length + 1}`,
+        dice: {
+            1: { F: 4 },
+            2: { F: 4 },
+            3: { G: 2 },
+            4: { G: 2 },
+            5: { S: 1 },
+            6: { C: 1 },
+        }
+    })
+    if(!Array.isArray(arr)){
+        employeeArr.push(newEmployee)
+    }
+    else{arr.push(newEmployee)}
+}
+
 
 function writeSave() {
     // TODO: write save file with current weapon, relics and levels
@@ -237,10 +352,10 @@ initGame()
 // };
 // var filtered = Object.filter(scores, score => score > 1);
 // return {} if no match found
-Object.filter = (obj, predicate) => 
+Object.filter = (obj, predicate) =>
     Object.keys(obj)
-          .filter( key => predicate(obj[key]) )
-          .reduce( (res, key) => (res[key] = obj[key], res), {} );
+        .filter(key => predicate(obj[key]))
+        .reduce((res, key) => (res[key] = obj[key], res), {});
 
 
 // const currentPx = new Patient(patientData.P123456)

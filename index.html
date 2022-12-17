@@ -2,34 +2,83 @@
 <html>
 
 
-    <head>
-        <title>GameDevClone</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link href="./styles/global.css" type="text/css" rel="stylesheet">
-        <link href="./styles/topnav.css" type="text/css" rel="stylesheet">
-    </head>
+<head>
+    <title>GameDevClone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="./styles/global.css" type="text/css" rel="stylesheet">
+    <link href="./styles/topnav.css" type="text/css" rel="stylesheet">
+    <link href="./styles/menu.css" type="text/css" rel="stylesheet">
+    <link href="./styles/sidenav.css" type="text/css" rel="stylesheet">
+</head>
 
 
-    <body>
-        <div class="topnav">
-            <a class="active" href="#home">Home</a>
-            <a href="#about">About</a>
-            <a href="#contact">Contact</a>
-            <div class="stats">
-                <div id="gold">
-                    123
-                </div>
+<body>
+    <div class="topnav">
+        <a class="active" href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <div class="stats">
+            <div id="gold">
+                Gold: 123
+            </div>
+        </div>
+        <div class="stats">
+            <div id="developingProduct">
+                DevelopingProduct: 123
+            </div>
+        </div>
+        <div class="stats">
+            <div id="sellingProduct">
+                Gold Earned: 123
             </div>
         </div>
 
-        <div class="content-container">
+
+    </div>
+
+    <div class="sidenav">
+        <button class="dropdown-btn">Product
+            <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-container">
+            <button id = "newProductButton" onclick="console.log('NewProduct')">New Product<button>
+            <a href="#">Link 2</a>
+            <a href="#">Link 3</a>
+        </div>
+
+        <button class="dropdown-btn">Employee
+            <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-container">
+            <button id = "HireButton" onclick="console.log('Hire')">Hire<button>
+            <button id = "FireButton" onclick="console.log('Fire')">Fire<button>
+            <a href="#">Link 3</a>
+        </div>
+
+        <button class="dropdown-btn">Stats
+            <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-container">
+            <!-- Combo: >40 fun and creativity: increase sales by 15% -->
+            <button id = "DiscoveredComboButton" onclick="console.log('Hire')">DiscoveredCombo<button>
+
+            <a href="#">Link 3</a>
+        </div>        
+
+
+    </div>
+
+    <div class="game-container">
+        <div class=button>
 
         </div>
-    </body>
+    </div>
+</body>
+
 </html>
 
 
-    
+
 
 
 
@@ -37,11 +86,11 @@
 <script src="./src/product.js"></script>
 <script src="./src/developingProduct.js"></script>
 <script src="./src/employee.js"></script>
+<script src="./src/TextMessage.js"></script>
+<script src="./src/employeeDisplay.js"></script>
+<script src="./src/developingProductDisplay.js"></script>
 
 
 
 
 <script src="./src/index.js"></script>
-
-
-      

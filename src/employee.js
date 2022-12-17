@@ -2,7 +2,6 @@ class Employee{
     constructor(config){
         this.name = config.name
         this.dice = config.dice
-        this.sellRate = 1
     }
 
     yieldPoint(){
@@ -11,7 +10,12 @@ class Employee{
         return this.dice[randomIndex];
     }
     
-
+    returnDisplayConfig(){
+        return {
+            name: this.name,
+            dice: this.dice
+        }
+    }
 
 
 }
